@@ -205,3 +205,16 @@ cython_debug/
 marimo/_static/
 marimo/_lsp/
 __marimo__/
+
+
+# Raw data files (too large to upload to GitHub)
+data/raw/
+
+# Exported chart images
+outputs/figures/
+
+# Jupyter auto-generated checkpoint files
+.ipynb_checkpoints/
+
+# Mac system file
+.DS_Store

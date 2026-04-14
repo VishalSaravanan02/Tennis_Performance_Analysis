@@ -36,10 +36,11 @@ Tennis_Performance_Analysis/
 │   ├── 00_data_cleaning.ipynb
 │   ├── 01_ranking_performance.ipynb
 │   ├── 02_player_progression.ipynb
-│   ├── 03_surface_tournament.ipynb
-│   ├── 04_ml_match_prediction.ipynb
-│   ├── 05_health_fatigue.ipynb
-│   └── 06_wheelchair_tennis.ipynb
+│   ├── 03_junior_pathway.ipynb
+│   ├── 04_surface_tournament.ipynb
+│   ├── 05_ml_match_prediction.ipynb
+│   ├── 06_health_fatigue.ipynb
+│   └── 07_wheelchair_tennis.ipynb
 │
 ├── outputs/
 │   └── figures/                    # Exported chart images
@@ -51,7 +52,6 @@ Tennis_Performance_Analysis/
 ├── requirements.txt
 └── .gitignore
 ```
-
 ---
 
 ## Data sources
@@ -90,34 +90,55 @@ Prepares the raw ATP match data for analysis.
 Analyses the relationship between player rankings and match performance.
 
 **Key findings:**
-
-**Win % by rank group:**
-- Elite players (Top 20) win 68% of their matches — nearly 7 in every 10
-- Tour Regulars (21–100) win just under 50%, reflecting a highly competitive bracket
-- Challengers (101–200) win 42% and Qualifiers (200+) win only 33%
-- Ranking is a strong and reliable predictor of match outcomes at the top level
-
-**Opposition variety:**
-- Elite players face the most predictable range of opponents (std: 85)
-- Qualifiers face an enormous range of opposition (std: 325) — from fellow
-  qualifiers to top seeds if they progress
-
-**Upset analysis (favourite's perspective):**
-- Even Elite players lose as favourite 27% of the time
-- Tour Regulars, Challengers and Qualifiers all lose as favourite ~40% of the time
+- Elite players (Top 20) win 68% of matches — ranking is a strong but imperfect predictor
+- Points gap is a stronger and more linear predictor than ranking position alone
+- Elite players peak at Grand Slams (74.4%) — they elevate when it matters most
+- Tour Regulars and Challengers perform significantly better in Davis Cup and
+  team events — team formats and home advantage boost mid-ranked players
 - Only the top 20 can be reliably expected to convert favourite status into wins
 
-**Rank points gap:**
-- Points gap is a stronger and more linear predictor of outcomes than ranking position
-- Players with a massive points advantage win 80% of matches
-- Players with a massive points deficit win only 20% of matches
+---
 
-**Tournament level performance matrix:**
-- Elite players peak at Grand Slams (74.4%) and Olympics (74.5%)
-- Tour Regulars and Challengers perform significantly better in Davis Cup and
-  team events — suggesting team formats and home advantage boost mid-ranked players
-- Grand Slams are hardest for lower ranked players — best of 5 sets allows
-  elite players to assert dominance more reliably
+### 02 — Player progression tracking
+Tracks how player rankings change over time across 237 players.
+
+**Key findings:**
+- Four distinct progression archetypes identified from data: rapid risers,
+  declining players, elite consistent and breakthrough players
+- Clear trade-off between speed of improvement and consistency — the fastest
+  improving players are almost always the most volatile
+- Two breakthrough templates exist — fast focused climbs and slow steady
+  journeys both produce top 50 players
+- 21 players achieved a true breakthrough (started outside top 100, ended
+  inside top 50) between 2022 and 2024
+- Juncheng Shang is the most dramatic breakthrough in the dataset (663 → 50)
+
+---
+
+### 03 — Junior pathway analysis
+Analyses performance, improvement rate and volatility across three career
+stages: U18, U19–21 and Senior players.
+
+**Career stage definitions:**
+- U18 — official ITF junior category (exploratory due to small sample size)
+- U19–21 — transition years, primary focus of junior pathway analysis
+- Senior (21+) — established professional players, benchmark group
+
+*In progress*
+
+---
+
+### 04 — Surface & tournament analysis
+*Coming soon*
+
+### 05 — Match outcome prediction (ML)
+*Coming soon*
+
+### 06 — Health & fatigue monitoring
+*Coming soon*
+
+### 07 — Wheelchair tennis
+*Coming soon*
 
 ---
 
@@ -130,9 +151,10 @@ Analyses the relationship between player rankings and match performance.
 | Upset analysis | Anticipating upsets, wildcard allocation decisions |
 | Rank points gap | More precise seeding metric than ranking position alone |
 | Tournament level matrix | Tournament assessment data streams, player pathway planning |
-| Health & fatigue (notebook 05) | Tracking player health on Tour |
 | Player progression (notebook 02) | Tracking player progression data |
-| Wheelchair tennis (notebook 06) | Classification digitisation, junior pathway analysis |
+| Junior pathway (notebook 03) | Junior pathway training and competition testing |
+| Health & fatigue (notebook 06) | Tracking player health on Tour |
+| Wheelchair tennis (notebook 07) | Classification digitisation, junior pathway analysis |
 
 ---
 

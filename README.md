@@ -117,14 +117,24 @@ Tracks how player rankings change over time across 237 players.
 
 ### 03 — Junior pathway analysis
 Analyses performance, improvement rate and volatility across three career
-stages: U18, U19–21 and Senior players.
+stages using match-level age classification.
 
-**Career stage definitions:**
-- U18 — official ITF junior category (exploratory due to small sample size)
-- U19–21 — transition years, primary focus of junior pathway analysis
-- Senior (21+) — established professional players, benchmark group
+**Career stages:**
+- Junior (U18) — official ITF junior category (48 matches, 16 players — exploratory)
+- Next Gen (19–21) — transition years (1,408 matches, 107 players)
+- Senior (21+) — established professionals (16,198 matches, 500 players)
 
-*In progress*
+**Key findings:**
+- Breaking into the ATP tour at U18 is extremely rare — most U18 players
+  won zero matches
+- Joao Fonseca is an exceptional outlier — 46.67% win rate across 15 ATP
+  matches at age 17
+- Next Gen players show the steepest improvement trajectory — median relative
+  improvement of 46.96% vs 2.91% for Seniors
+- 81.4% of Next Gen players improved their ranking vs 52.3% of Seniors
+- Next Gen win rate strongly predicts Senior success (r=0.718, p<0.001)
+- Speed of ranking improvement does NOT predict Senior success (r=0.130,
+  p=0.546) — consistency matters more than trajectory
 
 ---
 

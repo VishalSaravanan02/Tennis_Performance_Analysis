@@ -210,9 +210,6 @@ __marimo__/
 # Raw data files (too large to upload to GitHub)
 data/raw/
 
-# Exported chart images
-outputs/figures/
-
 # Jupyter auto-generated checkpoint files
 .ipynb_checkpoints/
 

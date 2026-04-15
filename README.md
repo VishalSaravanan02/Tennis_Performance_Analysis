@@ -138,14 +138,48 @@ stages using match-level age classification.
 
 ---
 
-### 04 — Surface & tournament analysis
+### 04 — Match outcome prediction (ML)
 *Coming soon*
 
-### 05 — Match outcome prediction (ML)
-*Coming soon*
+---
 
-### 06 — Health & fatigue monitoring
-*Coming soon*
+### 05 — Health & fatigue monitoring
+Investigates the relationship between competitive load and player performance,
+and develops a personalised anomaly detection system for tour-level health monitoring.
+
+**⚠️ Important data limitation discovered during analysis:**
+The `tourney_date` column records tournament start dates rather than individual
+match dates — meaning all matches within a tournament share the same date.
+This affects the precision of all load metrics in this notebook. Rather than
+abandoning the analysis, the methodology was adjusted:
+- Match load metrics are treated as **competitive density proxies** rather
+  than precise day-level workload measures
+- All findings are presented as directional rather than statistically precise
+- This limitation is documented transparently throughout the notebook
+
+This discovery also produced a concrete recommendation for ITF data
+infrastructure: collecting individual match dates would enable full
+Acute:Chronic Workload Ratio (ACWR) implementation — the gold standard
+approach in sports science literature.
+
+**Key findings:**
+- Competitive density is not a simple linear predictor of win rate —
+  the relationship is statistically significant (F=5.04, p=0.0005) but non-linear
+- Elite players show the strongest load-performance relationship — win rate
+  drops from 77.6% when fresh to 54.0% at very high competitive density
+- The fatigue effect is rank-dependent — Elite players are paradoxically
+  most affected by high load despite being best equipped to handle it
+- Personalised thresholds outperform fixed thresholds — players must be
+  evaluated against their own baseline, not the population average
+- 21% of active players were flagged at US Open 2024 (18 High, 14 Medium
+  risk out of 152 active players)
+
+**Prototype:** A tour-level personalised anomaly detection system is developed
+using each player's historical load distribution. The system is directly
+applicable to wheelchair tennis where physical demands make load monitoring
+even more critical.
+
+---
 
 ### 07 — Wheelchair tennis
 *Coming soon*

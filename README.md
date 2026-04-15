@@ -6,6 +6,21 @@ organisations like the International Tennis Federation (ITF).
 
 ---
 
+## TL;DR
+
+- Built an end-to-end tennis analytics pipeline covering EDA, player progression,
+  junior pathway analysis, ML prediction and health monitoring
+- Improved match outcome prediction beyond a ranking-only baseline (63.86% → 66.75%)
+- Identified non-linear effects in tennis performance — fatigue, round context and
+  surface preference interact in ways that linear models cannot capture
+- Discovered that Next Gen win rate consistency predicts Senior success better than
+  speed of improvement (r=0.718, p<0.001) — a non-obvious finding for junior pathway planning
+- Designed a transferable analytical framework directly applicable to ITF wheelchair
+  tennis workflows with appropriate data collection
+- Designed as a transferable analytics framework aligned with real-world sports governing body workflows (e.g., ITF).
+
+---
+
 ## Motivation
 
 Professional tennis generates a vast amount of match data that remains largely
@@ -13,10 +28,6 @@ underutilised for performance analysis. This project explores what player rankin
 match outcomes, and workload data can tell us about how professional tennis players
 actually perform — and how that performance can be tracked, predicted, and monitored
 in a structured way.
-
-The analysis covers everything from ranking group consistency and upset patterns
-to fatigue monitoring and match outcome prediction, with a dedicated section on
-how these methods apply to wheelchair tennis specifically.
 
 ---
 
@@ -37,10 +48,8 @@ Tennis_Performance_Analysis/
 │   ├── 01_ranking_performance.ipynb
 │   ├── 02_player_progression.ipynb
 │   ├── 03_junior_pathway.ipynb
-│   ├── 04_surface_tournament.ipynb
-│   ├── 05_ml_match_prediction.ipynb
-│   ├── 06_health_fatigue.ipynb
-│   └── 07_wheelchair_tennis.ipynb
+│   ├── 04_ml_match_prediction.ipynb
+│   └── 05_health_fatigue.ipynb
 │
 ├── outputs/
 │   └── figures/                    # Exported chart images
@@ -52,17 +61,98 @@ Tennis_Performance_Analysis/
 ├── requirements.txt
 └── .gitignore
 ```
+
 ---
 
 ## Data sources
 
 - **ATP Match Data:** Jeff Sackmann's tennis_atp dataset
   (github.com/JeffSackmann/tennis_atp)
-- **Years used:** 2022, 2023, 2024
-- **Why these years:** The 2020 and 2021 seasons were significantly disrupted
-  by COVID-19 — Wimbledon 2020 was cancelled, travel restrictions affected player
-  availability, and competitive conditions were not representative of normal tour play
+- **Years used:** 2022, 2023, 2024 — COVID-disrupted seasons (2020–2021) excluded
 - **ITF Wheelchair Tennis Rankings:** itftennis.com
+
+---
+
+## Narrative
+
+This project was structured around five core questions, each mapping to a real
+analytical challenge faced by sports governing bodies like the ITF:
+
+1. Does ranking accurately predict performance — and at what levels does it break down?
+2. How do players develop over time, and what archetypes exist?
+3. What predicts a successful transition from junior to professional tennis?
+4. Can match outcomes be predicted beyond ranking alone?
+5. Does competitive load affect performance, and can we monitor player health at scale?
+
+---
+
+## Key findings
+
+### Ranking & performance
+- Points gap between players is a stronger predictor than ranking position alone —
+  capturing quality magnitude rather than just ordinal position
+- Elite players show higher win rates at Grand Slams (74.4% vs 68.4% at ATP 250/500),
+  suggesting performance differences across tournament contexts
+- Below the top 20, any player can beat any other on a given day — seeding offers
+  limited predictive value outside the elite bracket
+
+![Win % by rank group](outputs/figures/01_win_pct_by_rank_group.png)
+![Performance matrix](outputs/figures/01_performance_matrix.png)
+
+---
+
+### Player progression
+- Four distinct archetypes identified from data: rapid risers, declining players,
+  elite consistent and breakthrough players — each with visually distinct trajectories
+- A clear trade-off exists between speed of improvement and consistency —
+  the fastest improving players are almost always the most volatile
+- 21 players achieved a true breakthrough (outside top 100 → inside top 50)
+  between 2022 and 2024 via two distinct templates: fast focused climbs and
+  slow steady journeys
+
+![Player progression archetypes](outputs/figures/02_player_progression.png)
+![Breakthrough players](outputs/figures/02_breakthrough_players.png)
+
+---
+
+### Junior pathway
+- Next Gen players (19–21) show the steepest improvement trajectory —
+  median relative improvement of 46.96% vs 2.91% for Seniors
+- **Most important finding:** Next Gen win rate consistency predicts Senior
+  success (r=0.718, p<0.001) — speed of ranking improvement does not
+  (r=0.130, p=0.546). Consistency matters more than trajectory.
+
+![Relative improvement rate](outputs/figures/03_improvement_rate_by_stage.png)
+![Transition analysis](outputs/figures/03_transition_nextgen_to_senior.png)
+
+---
+
+### Match outcome prediction
+- All three models outperform the naive baseline (63.86%) — XGBoost achieves
+  66.75% accuracy and AUC of 0.7356
+- Tree-based models outperform Logistic Regression, suggesting that non-linear
+  feature interactions improve predictive performance in this dataset
+- Ranking and points gap dominate all predictions — tennis outcomes are
+  primarily structured by player quality hierarchy
+- ~67% accuracy ceiling confirms tennis retains irreducible unpredictability
+
+![Model comparison](outputs/figures/04_model_comparison.png)
+![Feature importance](outputs/figures/04_feature_importance.png)
+
+---
+
+### Health & fatigue monitoring
+- Competitive density shows a statistically significant but non-linear relationship
+  with win rate (F=5.04, p=0.0005)
+- The fatigue effect is rank-dependent — Elite players show the largest performance
+  drop at high competitive density (77.6% → 54.0%)
+- A personalised anomaly detection prototype was developed — 21% of players were
+  flagged at US Open 2024 (18 High, 14 Medium risk out of 152 active players)
+- **Important data limitation:** tournament date approximation affects load metric
+  precision. Full ACWR implementation requires individual match dates.
+
+![Interaction heatmap](outputs/figures/05_interaction_heatmap.png)
+![Tour snapshot](outputs/figures/05_tour_snapshot.png)
 
 ---
 
@@ -73,144 +163,104 @@ Prepares the raw ATP match data for analysis.
 
 **Key decisions:**
 - Dropped 24 irrelevant or high-missing columns
-- Dropped 152 rows with missing ranking or surface data (<2% of dataset)
-- Imputed missing match duration by surface and best_of group rather than
-  global median — more accurate for fatigue monitoring
-- Fixed naming inconsistencies across tournament names
+- Imputed missing match duration by surface and best_of group — more accurate
+  than global median for fatigue monitoring
+- Fixed naming inconsistencies and miscategorised tournament levels
 - Created new tournament level 'T' for team events (ATP Cup, United Cup, Laver Cup)
-  which have fundamentally different competitive dynamics
-- Reshaped from match format to player format — one row per player per match,
-  enabling unbiased ML modelling with a balanced 50/50 win/loss target
+- Reshaped from match format to player format — enabling balanced 50/50 ML target
 
 **Output:** 17,654 rows × 21 columns, zero missing values
 
 ---
 
 ### 01 — Ranking & performance analysis
-Analyses the relationship between player rankings and match performance.
-
-**Key findings:**
-- Elite players (Top 20) win 68% of matches — ranking is a strong but imperfect predictor
-- Points gap is a stronger and more linear predictor than ranking position alone
-- Elite players peak at Grand Slams (74.4%) — they elevate when it matters most
-- Tour Regulars and Challengers perform significantly better in Davis Cup and
-  team events — team formats and home advantage boost mid-ranked players
-- Only the top 20 can be reliably expected to convert favourite status into wins
+Analyses ranking groups, upset patterns, rank points gap and performance
+across tournament levels. Introduces a performance matrix showing how
+different rank groups perform across competition types.
 
 ---
 
 ### 02 — Player progression tracking
-Tracks how player rankings change over time across 237 players.
-
-**Key findings:**
-- Four distinct progression archetypes identified from data: rapid risers,
-  declining players, elite consistent and breakthrough players
-- Clear trade-off between speed of improvement and consistency — the fastest
-  improving players are almost always the most volatile
-- Two breakthrough templates exist — fast focused climbs and slow steady
-  journeys both produce top 50 players
-- 21 players achieved a true breakthrough (started outside top 100, ended
-  inside top 50) between 2022 and 2024
-- Juncheng Shang is the most dramatic breakthrough in the dataset (663 → 50)
+Tracks ranking trajectories across 237 players, identifying four data-driven
+archetypes and analysing 21 breakthrough players in depth.
 
 ---
 
 ### 03 — Junior pathway analysis
-Analyses performance, improvement rate and volatility across three career
-stages using match-level age classification.
-
-**Career stages:**
-- Junior (U18) — official ITF junior category (48 matches, 16 players — exploratory)
-- Next Gen (19–21) — transition years (1,408 matches, 107 players)
-- Senior (21+) — established professionals (16,198 matches, 500 players)
-
-**Key findings:**
-- Breaking into the ATP tour at U18 is extremely rare — most U18 players
-  won zero matches
-- Joao Fonseca is an exceptional outlier — 46.67% win rate across 15 ATP
-  matches at age 17
-- Next Gen players show the steepest improvement trajectory — median relative
-  improvement of 46.96% vs 2.91% for Seniors
-- 81.4% of Next Gen players improved their ranking vs 52.3% of Seniors
-- Next Gen win rate strongly predicts Senior success (r=0.718, p<0.001)
-- Speed of ranking improvement does NOT predict Senior success (r=0.130,
-  p=0.546) — consistency matters more than trajectory
+Compares performance, improvement rate and volatility across U18, Next Gen
+(19–21) and Senior (21+) career stages using match-level age classification.
 
 ---
 
 ### 04 — Match outcome prediction (ML)
-*Coming soon*
+Develops a tennis-informed prediction system using Logistic Regression,
+Random Forest and XGBoost, evaluated against a naive ranking baseline.
+Features selected based on tennis domain knowledge — including surface-specific
+win rate and tournament-cycle-based recent form.
 
 ---
 
 ### 05 — Health & fatigue monitoring
-Investigates the relationship between competitive load and player performance,
-and develops a personalised anomaly detection system for tour-level health monitoring.
-
-**⚠️ Important data limitation discovered during analysis:**
-The `tourney_date` column records tournament start dates rather than individual
-match dates — meaning all matches within a tournament share the same date.
-This affects the precision of all load metrics in this notebook. Rather than
-abandoning the analysis, the methodology was adjusted:
-- Match load metrics are treated as **competitive density proxies** rather
-  than precise day-level workload measures
-- All findings are presented as directional rather than statistically precise
-- This limitation is documented transparently throughout the notebook
-
-This discovery also produced a concrete recommendation for ITF data
-infrastructure: collecting individual match dates would enable full
-Acute:Chronic Workload Ratio (ACWR) implementation — the gold standard
-approach in sports science literature.
-
-**Key findings:**
-- Competitive density is not a simple linear predictor of win rate —
-  the relationship is statistically significant (F=5.04, p=0.0005) but non-linear
-- Elite players show the strongest load-performance relationship — win rate
-  drops from 77.6% when fresh to 54.0% at very high competitive density
-- The fatigue effect is rank-dependent — Elite players are paradoxically
-  most affected by high load despite being best equipped to handle it
-- Personalised thresholds outperform fixed thresholds — players must be
-  evaluated against their own baseline, not the population average
-- 21% of active players were flagged at US Open 2024 (18 High, 14 Medium
-  risk out of 152 active players)
-
-**Prototype:** A tour-level personalised anomaly detection system is developed
-using each player's historical load distribution. The system is directly
-applicable to wheelchair tennis where physical demands make load monitoring
-even more critical.
+Investigates competitive load vs performance and develops a personalised
+anomaly detection system. A significant data limitation was discovered and
+documented transparently — the methodology was adjusted rather than abandoned,
+producing a concrete ITF data infrastructure recommendation.
 
 ---
 
-### 07 — Wheelchair tennis
-*Coming soon*
+## Applicability to wheelchair tennis
+
+| Analysis | Wheelchair tennis application |
+|---|---|
+| Ranking analysis | ITF wheelchair Open and Quad division comparisons |
+| Player progression | Junior wheelchair tennis pathway tracking |
+| Junior pathway | Development stage transitions in wheelchair tennis |
+| Match prediction | Wheelchair match outcome prediction with appropriate data |
+| Health monitoring | **More critical** — wheelchair propulsion adds upper body load not captured in match duration alone |
+| Classification | Digitisation of Open/Quad functional classification process |
+
+A dedicated wheelchair tennis notebook was planned but not implemented due to
+data availability — historical match data sufficient for progression tracking
+and fatigue monitoring is not publicly available. A proposed classification
+digitisation schema (not currently available in public dataset) would include:
+player_id, classification_date, functional_score, division (Open/Quad) and
+review_due_date.
+
+---
+
+## Future work
+
+- **Surface & tournament analysis** — surface specialist scoring, deprioritised
+  in favour of notebooks directly mapped to ITF responsibilities
+- **Seasonal performance analysis** — splitting the ATP season into four phases
+  to track performance variation across the year. Key challenge: surface and
+  season phase are almost perfectly correlated in the ATP calendar, making it
+  difficult to isolate a seasonal fatigue effect from a surface effect
+- **Full ACWR implementation** — requires individual match dates rather than
+  tournament start dates — the single highest-impact data collection improvement
+- **Wheelchair tennis dedicated analysis** — requires historical ITF wheelchair
+  tennis match data, individual match dates, and functional classification records
 
 ---
 
 ## Relevance to sports governing bodies
 
-| Notebook section | ITF use case |
+| Notebook | ITF use case |
 |---|---|
-| Win % by rank group | Player ranking assessment and validation |
-| Opposition variety | Tournament seeding effectiveness |
-| Upset analysis | Anticipating upsets, wildcard allocation decisions |
-| Rank points gap | More precise seeding metric than ranking position alone |
-| Tournament level matrix | Tournament assessment data streams, player pathway planning |
-| Player progression (notebook 02) | Tracking player progression data |
-| Junior pathway (notebook 03) | Junior pathway training and competition testing |
-| Health & fatigue (notebook 06) | Tracking player health on Tour |
-| Wheelchair tennis (notebook 07) | Classification digitisation, junior pathway analysis |
+| Ranking analysis (01) | Player ranking assessment, tournament seeding, upset anticipation |
+| Player progression (02) | Tracking player progression data |
+| Junior pathway (03) | Junior pathway training and competition testing |
+| Match prediction (04) | Tournament assessment, ranking validation, talent identification |
+| Health & fatigue (05) | Setting up a process to track player health on Tour |
+| Wheelchair tennis applicability | Classification digitisation, junior pathway analysis |
 
 ---
 
 ## How to run
 
 ```bash
-# Install dependencies
 pip install -r requirements.txt
-
-# Launch Jupyter
 jupyter notebook
-
 # Open notebooks in order starting with 00_data_cleaning.ipynb
 ```
 
@@ -221,14 +271,14 @@ jupyter notebook
 - Python 3.9
 - pandas, numpy — data manipulation
 - matplotlib, seaborn — visualisation
-- scikit-learn — machine learning
+- scikit-learn, xgboost — machine learning
+- scipy — statistical testing
 - jupyter — notebook environment
 - openpyxl — Excel compatibility
-- streamlit — optional dashboard
 
 ---
 
 ## Author
 
-Vishal Saravanan — postgraduate student in Data Analytics
+Vishal Saravanan — postgraduate student in Data Science and Artificial Intelligence
 GitHub: github.com/VishalSaravanan02

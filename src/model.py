@@ -68,17 +68,15 @@ def _surface_winrate(group: pd.DataFrame) -> pd.Series:
     return pd.Series(win_rates, index=group.index)
 
 
-def engineer_features(df: pd.DataFrame) -> tuple[pd.DataFrame, dict]:
+def engineer_features(df: pd.DataFrame, fill_years: list = TRAIN_YEARS) -> tuple[pd.DataFrame, dict]:
     """
     Add all model features to a copy of df.
 
     Returns (engineered_df, fill_values) where fill_values records the
-    constants used for NaN imputation — these travel in the model bundle
-    so inference uses identical values.
-
-    Note: fill constants are computed over the full dataframe, faithfully
-    reproducing notebooks/04 (documented caveat: a strictly train-only
-    fill is the more rigorous choice).
+    constants used for NaN imputation. Fill constants are computed only
+    from fill_years (the training years) to avoid test-set leakage —
+    a deliberate improvement over notebooks/04, which used the full
+    dataset. The bundle carries these values so inference is identical.
     """
     out = df.copy()
     out["year"] = out["tourney_date"].dt.year
@@ -95,12 +93,14 @@ def engineer_features(df: pd.DataFrame) -> tuple[pd.DataFrame, dict]:
     )
     out["round_encoded"] = out["round"].map(ROUND_MAPPING).fillna(3)
 
-    fill_values = {"recent_win_rate": out["win"].mean()}
+    fill_source = out[out["year"].isin(fill_years)]
+
+    fill_values = {"recent_win_rate": fill_source["win"].mean()}
     out["recent_win_rate"] = out["recent_win_rate"].fillna(
         fill_values["recent_win_rate"]
     )
     for surface in ["Hard", "Clay", "Grass"]:
-        surface_mean = out[out["surface"] == surface]["win"].mean()
+        surface_mean = fill_source[fill_source["surface"] == surface]["win"].mean()
         fill_values[f"surface_win_rate_{surface}"] = surface_mean
         mask = out["surface_win_rate"].isna() & (out["surface"] == surface)
         out.loc[mask, "surface_win_rate"] = surface_mean

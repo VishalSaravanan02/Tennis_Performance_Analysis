@@ -14,10 +14,9 @@ organisations like the International Tennis Federation (ITF).
 - Identified non-linear effects in tennis performance — fatigue, round context and
   surface preference interact in ways that linear models cannot capture
 - Discovered that Next Gen win rate consistency predicts Senior success better than
-  speed of improvement (r=0.718, p<0.001) — a non-obvious finding for junior pathway planning
-- Designed a transferable analytical framework directly applicable to ITF wheelchair
-  tennis workflows with appropriate data collection
-- Designed as a transferable analytics framework aligned with real-world sports governing body workflows (e.g., ITF).
+  speed of improvement (r=0.718, p<0.001, n=24 players) — a non-obvious finding for junior pathway planning
+- Designed a transferable analytical framework aligned with real-world sports
+  governing body workflows (e.g., ITF wheelchair tennis) with appropriate data collection
 
 ---
 
@@ -39,8 +38,7 @@ Tennis_Performance_Analysis/
 ├── data/
 │   ├── raw/                        # Raw ATP match data (not tracked by Git)
 │   ├── processed/                  # Cleaned, analysis-ready dataset
-│   │   ├── matches_cleaned.csv
-│   │   └── matches_cleaned.xlsx
+│   │   └── matches_cleaned.csv
 │   └── wheelchair/                 # ITF wheelchair tennis data
 │
 ├── notebooks/
@@ -54,8 +52,7 @@ Tennis_Performance_Analysis/
 ├── outputs/
 │   └── figures/                    # Exported chart images
 │
-├── app/                            # Optional Streamlit dashboard
-│   └── app.py
+├── app/                            # Streamlit dashboard (in development)
 │
 ├── README.md
 ├── requirements.txt
@@ -121,6 +118,9 @@ analytical challenge faced by sports governing bodies like the ITF:
 - **Most important finding:** Next Gen win rate consistency predicts Senior
   success (r=0.718, p<0.001) — speed of ranking improvement does not
   (r=0.130, p=0.546). Consistency matters more than trajectory.
+- Based on the 24 players with sufficient match volume in both Next Gen and
+  Senior stages — a modest sample, so treated as a strong signal to validate
+  on longer historical windows rather than a definitive result
 
 ![Relative improvement rate](outputs/figures/03_improvement_rate_by_stage.png)
 ![Transition analysis](outputs/figures/03_transition_nextgen_to_senior.png)

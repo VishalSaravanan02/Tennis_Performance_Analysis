@@ -70,3 +70,17 @@ STAGE_ORDER = [STAGE_JUNIOR, STAGE_NEXTGEN, STAGE_SENIOR]
 # threshold behind the n=24 Next Gen -> Senior correlation finding.
 # ---------------------------------------------------------------------------
 MIN_MATCHES_PER_STAGE = 3
+
+# ---------------------------------------------------------------------------
+# Competitive density groups
+# From notebooks/05_health_fatigue — buckets of match_load_7 (matches played
+# in the prior 7 days, tournament-date proxy).
+# ---------------------------------------------------------------------------
+DENSITY_FRESH = "0 — Fresh"
+DENSITY_LOW = "1-2 — Low"
+DENSITY_MEDIUM = "3-4 — Medium"
+DENSITY_HIGH = "5-6 — High"
+DENSITY_VERY_HIGH = "7+ — Very High"
+DENSITY_ORDER = [
+    DENSITY_FRESH, DENSITY_LOW, DENSITY_MEDIUM, DENSITY_HIGH, DENSITY_VERY_HIGH,
+]

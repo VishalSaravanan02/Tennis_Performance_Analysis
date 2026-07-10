@@ -1,4 +1,5 @@
 # Tennis Performance Analysis
+![CI](https://github.com/VishalSaravanan02/Tennis_Performance_Analysis/actions/workflows/ci.yml/badge.svg)
 
 A data science project analysing player performance, progression and match outcomes
 across ATP tour events from 2022–2024. Inspired by real-world workflows used at
@@ -15,8 +16,39 @@ organisations like the International Tennis Federation (ITF).
   surface preference interact in ways that linear models cannot capture
 - Discovered that Next Gen win rate consistency predicts Senior success better than
   speed of improvement (r=0.718, p<0.001, n=24 players) — a non-obvious finding for junior pathway planning
+- Shipped the analysis as a tested, deployed product: a four-page interactive
+  dashboard with live match prediction, backed by an 18-test suite and CI
 - Designed a transferable analytical framework aligned with real-world sports
   governing body workflows (e.g., ITF wheelchair tennis) with appropriate data collection
+
+---
+
+## Interactive dashboard
+
+**[Live demo →](https://tennisperformanceanalysis-dx6mrqycd4rgwvc4kabrwf.streamlit.app)**
+
+The full analysis is deployed as an interactive Streamlit application:
+
+- **Tour Overview** — win rates, upset rates and points-gap analysis with
+  year, surface and tournament-level filters
+
+![Tour Overview](assets/1_tour_overview.png)
+
+- **Player Explorer** — rank progression, surface/round splits and full
+  match history for all 568 players
+
+![Player Explorer](assets/2_player_explorer.png)
+
+- **Junior Pathway** — the Next Gen → Senior transition analysis, with an
+  interactive threshold slider (the headline correlation holds between
+  r=0.66 and r=0.77 across thresholds 3–15)
+
+![Junior Pathway](assets/3_junior_pathway.png)
+
+- **Match Predictor** — live win probabilities from the trained XGBoost
+  model, in real-player or manual-scenario mode
+
+![Match Predictor](assets/4_match_predictor.png)
 
 ---
 
@@ -35,11 +67,29 @@ in a structured way.
 ```
 Tennis_Performance_Analysis/
 │
+├── .github/
+│   └── workflows/
+│       └── ci.yml                  # GitHub Actions: run tests on every push/PR
+│
+├── app/                            # Streamlit dashboard (live demo above)
+│   ├── Home.py                     # Entry point: intro + headline KPIs
+│   ├── utils.py                    # Cached data & model loaders
+│   └── pages/
+│       ├── 1_Tour_Overview.py
+│       ├── 2_Player_Explorer.py
+│       ├── 3_Junior_Pathway.py
+│       └── 4_Match_Predictor.py
+│
+├── assets/                         # Dashboard screenshots for this README
+│
 ├── data/
 │   ├── raw/                        # Raw ATP match data (not tracked by Git)
 │   ├── processed/                  # Cleaned, analysis-ready dataset
 │   │   └── matches_cleaned.csv
-│   └── wheelchair/                 # ITF wheelchair tennis data
+│   └── wheelchair/                 # ITF wheelchair tennis data (future work)
+│
+├── models/
+│   └── match_predictor.pkl         # Self-contained model bundle
 │
 ├── notebooks/
 │   ├── 00_data_cleaning.ipynb
@@ -52,10 +102,25 @@ Tennis_Performance_Analysis/
 ├── outputs/
 │   └── figures/                    # Exported chart images
 │
-├── app/                            # Streamlit dashboard (in development)
+├── src/                            # Analytical logic as a validated package
+│   ├── config.py                   # Paths and all analysis constants
+│   ├── data_loader.py              # Loading + structural validation
+│   ├── analysis.py                 # Rank groups, win/upset rates, consistency
+│   ├── pathway.py                  # Career stages, Next Gen → Senior transition
+│   ├── fatigue.py                  # Competitive density analysis
+│   └── model.py                    # Feature engineering, training, inference
 │
+├── tests/                          # 18-test pytest suite (run by CI)
+│   ├── test_analysis.py
+│   ├── test_pathway.py
+│   └── test_model.py
+│
+├── train_model.py                  # Reproducible training entry point
+├── requirements.txt                # App dependencies (version-pinned artifacts)
+├── requirements-notebooks.txt      # + notebook extras
+├── requirements-dev.txt            # + pytest
+├── LICENSE
 ├── README.md
-├── requirements.txt
 └── .gitignore
 ```
 
@@ -256,12 +321,46 @@ review_due_date.
 
 ---
 
+## Engineering
+
+The project is built as a maintained application, not just a set of notebooks:
+
+- **`src/` package** — all analytical logic refactored out of the notebooks
+  into validated, documented modules; every extracted function verified to
+  exactly reproduce the original notebook outputs
+- **Reproducible model pipeline** — `python train_model.py` retrains the
+  model and saves a self-contained artifact bundle (model, fitted scaler,
+  feature schema, imputation constants, player snapshot); no preprocessing
+  values are hardcoded at inference
+- **Tested** — an 18-test pytest suite covering unit logic and regression
+  tests that pin the published findings (rank-group win rates, the n=24
+  junior pathway correlation and its threshold robustness, model-vs-baseline
+  performance, and input-bounds assumptions the dashboard depends on)
+- **Continuous integration** — GitHub Actions runs the full suite on a fresh
+  machine for every push and pull request
+- **Deployed** — Streamlit Community Cloud, with artifact-critical library
+  versions pinned for serialization compatibility
+
+---
+
 ## How to run
 
+**Dashboard (main entry point):**
 ```bash
 pip install -r requirements.txt
-jupyter notebook
-# Open notebooks in order starting with 00_data_cleaning.ipynb
+streamlit run app/Home.py
+```
+
+**Analysis notebooks:**
+```bash
+pip install -r requirements-notebooks.txt
+jupyter notebook   # run in order from 00_data_cleaning
+```
+
+**Tests:**
+```bash
+pip install -r requirements-dev.txt
+python -m pytest tests/
 ```
 
 ---
@@ -270,11 +369,13 @@ jupyter notebook
 
 - Python 3.9
 - pandas, numpy — data manipulation
-- matplotlib, seaborn — visualisation
 - scikit-learn, xgboost — machine learning
-- scipy — statistical testing
+- scipy, statsmodels — statistical testing
+- matplotlib, seaborn — notebook visualisation
+- streamlit, plotly — interactive dashboard
+- joblib — model artifact serialization
+- pytest, GitHub Actions — testing and CI
 - jupyter — notebook environment
-- openpyxl — Excel compatibility
 
 ---
 
